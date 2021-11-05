@@ -12,7 +12,8 @@
 ```
 
 This project uses [ProxylessNAS](https://github.com/mit-han-lab/proxylessnas) to search for resource efficient CNNs for Keyword Spotting on the [Google Speech Commands](https://arxiv.org/abs/1804.03209)
-dataset. For further information on ProxylessNAS please refer to the following resources: [[git]](https://github.com/mit-han-lab/proxylessnas) [[arXiv]](https://arxiv.org/abs/1812.00332) [[Poster]](https://file.lzhu.me/projects/proxylessNAS/figures/ProxylessNAS_iclr_poster_final.pdf)
+dataset. For further information on ProxylessNAS please refer to the following resources: [[git]](https://github.com/mit-han-lab/proxylessnas) [[arXiv]](https://arxiv.org/abs/1812.00332) [[Poster]](https://file.lzhu.me/projects/proxylessNAS/figures/ProxylessNAS_iclr_poster_final.pdf)  
+fork自https://github.com/dapeter/nas-for-kws 针对单Python环境进行修改，跑一个demo
 
 ## Contents
 
