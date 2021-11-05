@@ -22,7 +22,7 @@ parser.add_argument('--manual_seed', default=0, type=int)
 parser.add_argument('--resume', action='store_true')
 parser.add_argument('--latency', type=str, default=None)
 
-parser.add_argument('--n_epochs', type=int, default=300)
+parser.add_argument('--n_epochs', type=int, default=2) # Todo
 parser.add_argument('--init_lr', type=float, default=0.05)
 parser.add_argument('--lr_schedule_type', type=str, default='cosine')
 # lr_schedule_param

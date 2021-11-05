@@ -1,7 +1,9 @@
 import torch
 from torch.nn.parameter import Parameter
 from torch.nn import functional as F
-from utils.ste import *
+from src.search.utils.ste import *
+
+from src.search.utils.ste import LinearQuantizerDorefa
 
 
 class QLinear(torch.nn.Linear):
@@ -42,9 +44,9 @@ class QConv2d(torch.nn.Conv2d):
         if self.num_bits:
             quantized_weight = LinearQuantizerDorefa.apply(self.weight, self.num_bits, self.min_x, self.max_x)
             self.quantized_weight = Parameter(quantized_weight)
-            return self._conv_forward(input, quantized_weight)
+            return self._conv_forward(input, quantized_weight, self.bias)
         else:
-            return self._conv_forward(input, self.weight)
+            return self._conv_forward(input, self.weight, self.bias)
 
     def extra_repr(self):
         return super(QConv2d, self).extra_repr() + ', num_bits={}'.format(self.num_bits)

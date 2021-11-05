@@ -2,9 +2,13 @@
 # Han Cai, Ligeng Zhu, Song Han
 # International Conference on Learning Representations (ICLR), 2019.
 
-from utils import *
+from src.search.utils import *
 from collections import OrderedDict
 from .quantized_modules import *
+from torch import nn
+
+from ..utils.my_modules import MyModule
+from ..utils.pytorch_utils import ShuffleLayer, count_conv_flop, build_activation
 
 
 def set_layer_from_config(layer_config):

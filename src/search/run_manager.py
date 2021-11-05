@@ -1,17 +1,19 @@
 # ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware
 # Han Cai, Ligeng Zhu, Song Han
 # International Conference on Learning Representations (ICLR), 2019.
-
+import math
+import os
 import time
 import json
 from datetime import timedelta
 import numpy as np
 import copy
-
+from torch import nn
 import torch.nn.parallel
 import torch.backends.cudnn as cudnn
 import torch.optim
 
+from src.search.utils.pytorch_utils import count_parameters, AverageMeter, accuracy, cross_entropy_with_label_smoothing
 from utils import *
 from models.normal_nets.proxyless_nets import ProxylessNASNets
 from modules.mix_op import MixedEdge
@@ -180,7 +182,7 @@ class RunManager:
 
         # a copy of net on cpu for latency estimation & mobile latency model
         self.net_on_cpu_for_latency = copy.deepcopy(self.net).cpu()
-        self.latency_estimator = None # LatencyEstimator()
+        self.latency_estimator = None  # LatencyEstimator()
 
         # move network to GPU if available
         if torch.cuda.is_available():
@@ -508,17 +510,18 @@ class RunManager:
                         prefix = 'Test'
                     else:
                         prefix = 'Valid'
-                    test_log = prefix + ': [{0}/{1}]\t'\
-                                        'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'\
-                                        'Loss {loss.val:.4f} ({loss.avg:.4f})\t'\
-                                        'Top-1 acc {top1.val:.3f} ({top1.avg:.3f})'.\
+                    test_log = prefix + ': [{0}/{1}]\t' \
+                                        'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t' \
+                                        'Loss {loss.val:.4f} ({loss.avg:.4f})\t' \
+                                        'Top-1 acc {top1.val:.3f} ({top1.avg:.3f})'. \
                         format(i, len(data_loader) - 1, batch_time=batch_time, loss=losses, top1=top1)
                     if return_top5:
                         test_log += '\tTop-5 acc {top5.val:.3f} ({top5.avg:.3f})'.format(top5=top5)
                     print(test_log)
         print("Confusion matrix:")
         print(confusion_matrix.numpy())
-        classes = ['yes', 'no', 'up', 'down', 'left', 'right', 'on', 'off', 'stop', 'go', 'silence', 'unknown']  # See SpeechCommandsFolder class
+        classes = ['yes', 'no', 'up', 'down', 'left', 'right', 'on', 'off', 'stop', 'go', 'silence',
+                   'unknown']  # See SpeechCommandsFolder class
         class_acc = ""
         for c, a in zip(classes, class_accuracy.tolist()):
             class_acc += "\t{0}: {1:.2f} %\n".format(c, a)
@@ -607,10 +610,10 @@ class RunManager:
                 val_loss, val_acc, val_acc5 = self.validate(is_test=False, return_top5=True)
                 is_best = val_acc > self.best_acc
                 self.best_acc = max(self.best_acc, val_acc)
-                val_log = 'Valid [{0}/{1}]\tloss {2:.3f}\ttop-1 acc {3:.3f} ({4:.3f})'.\
+                val_log = 'Valid [{0}/{1}]\tloss {2:.3f}\ttop-1 acc {3:.3f} ({4:.3f})'. \
                     format(epoch + 1, self.run_config.n_epochs, val_loss, val_acc, self.best_acc)
                 if print_top5:
-                    val_log += '\ttop-5 acc {0:.3f}\tTrain top-1 {top1.avg:.3f}\ttop-5 {top5.avg:.3f}'.\
+                    val_log += '\ttop-5 acc {0:.3f}\tTrain top-1 {top1.avg:.3f}\ttop-5 {top5.avg:.3f}'. \
                         format(val_acc5, top1=train_top1, top5=train_top5)
                 else:
                     val_log += '\tTrain top-1 {top1.avg:.3f}'.format(top1=train_top1)

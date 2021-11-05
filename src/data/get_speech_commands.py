@@ -15,7 +15,9 @@ keywords = ['down', 'go', 'left', 'no', 'off', 'on', 'right', 'stop', 'up', 'yes
 unknowns = ['bed', 'cat', 'eight', 'four', 'house', 'nine', 'seven', 'six', 'tree', 'wow',
             'bird', 'dog', 'five', 'happy', 'marvin', 'one', 'sheila', 'three', 'two', 'zero']
 background_folder_name = '_background_noise_'
-output_path = '../../data/'
+
+#这里使用双斜杠 避免转义符错误
+output_path = 'C:\\Users\\12994\\PycharmProjects\\nas-for-kws\\data'
 
 
 def which_set(filename, validation_percentage=10, testing_percentage=10):

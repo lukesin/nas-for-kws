@@ -65,7 +65,10 @@ Set BETA, OMEGA and the output path accordingly and run
 
     python arch_search.py --path "output_path/" --dataset "speech_commands" --init_lr 0.2 --train_batch_size 100 --test_batch_size 100 --target_hardware "flops" --flops_ref_value 20e6 --n_worker 4 --arch_lr 4e-3 --grad_reg_loss_alpha 1 --grad_reg_loss_beta BETA --weight_bits 8 --width_mult OMEGA --n_mfcc 10
     python run_exp.py --path "output_path/learned_net" --train
+本机使用如下命令来进行训练  
 
+    arch_search.py: --path "C:\Users\12994\PycharmProjects\nas-for-kws\src\search\output" --dataset "speech_commands" --init_lr 0.2 --train_batch_size 100 --test_batch_size 100 --target_hardware "flops" --flops_ref_value 20e6 --n_worker 4 --arch_lr 4e-3 --grad_reg_loss_alpha 1 --grad_reg_loss_beta 0.3 --weight_bits 8 --width_mult 1.0 --n_mfcc 10
+    run_exp.py: --path "C:\Users\12994\PycharmProjects\nas-for-kws\src\search\output\learned_net" --train
 ### Weight quantization
 
 Weight quantization as a post-processing step by rounding parameters of a trained network is performed using

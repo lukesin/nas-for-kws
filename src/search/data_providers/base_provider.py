@@ -3,8 +3,9 @@
 # International Conference on Learning Representations (ICLR), 2019.
 
 import numpy as np
+import torch
 
-from utils import *
+from src.search.utils import *
 
 
 class DataProvider:

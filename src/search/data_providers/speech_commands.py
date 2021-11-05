@@ -9,7 +9,7 @@ import random
 import numpy as np
 import importlib
 
-from data_providers.base_provider import *
+from src.search.data_providers.base_provider import *
 
 from definitions import DATA_PATH
 

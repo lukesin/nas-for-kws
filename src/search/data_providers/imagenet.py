@@ -5,8 +5,8 @@
 import torch.utils.data
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
-
-from data_providers.base_provider import *
+import os
+from base_provider import *
 
 
 class ImagenetDataProvider(DataProvider):
