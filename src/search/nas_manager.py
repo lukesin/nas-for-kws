@@ -1,12 +1,9 @@
 # ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware
 # Han Cai, Ligeng Zhu, Song Han
 # International Conference on Learning Representations (ICLR), 2019.
-import math
-import os
 
 from run_manager import *
-from src.search.utils.pytorch_utils import AverageMeter, cross_entropy_with_label_smoothing, accuracy, count_parameters
-
+from src.search.utils import *
 
 class ArchSearchConfig:
 

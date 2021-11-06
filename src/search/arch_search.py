@@ -3,12 +3,10 @@
 # International Conference on Learning Representations (ICLR), 2019.
 
 import argparse
-import re
-import os
 
 from models import ImagenetRunConfig, SpeechCommandsRunConfig
-from nas_manager import *
 from models.super_nets.super_proxyless import SuperProxylessNASNets
+from nas_manager import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--path', type=str, default=None)
