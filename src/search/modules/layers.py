@@ -456,6 +456,17 @@ class MBInvertedConvLayer(MyModule):
 
     def __init__(self, in_channels, out_channels,
                  kernel_size=3, stride=1, expand_ratio=6, mid_channels=None, num_bits=None):
+        """
+        移动反向瓶颈卷积层 - Mobile inverted bottleneck convolutions (MBCs)
+        Args:
+            in_channels:输入通道
+            out_channels:输出通道
+            kernel_size:卷积核大小
+            stride:步幅
+            expand_ratio:展开比率（扩展速率）
+            mid_channels:中间经历的通道数
+            num_bits:比特数
+        """
         super(MBInvertedConvLayer, self).__init__()
 
         self.in_channels = in_channels

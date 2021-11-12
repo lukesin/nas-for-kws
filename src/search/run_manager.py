@@ -392,6 +392,7 @@ class RunManager:
 
     def load_model(self, model_fname=None):
         latest_fname = os.path.join(self.save_path, 'latest.txt')
+        print(self.save_path)
         if model_fname is None and os.path.exists(latest_fname):
             with open(latest_fname, 'r') as fin:
                 model_fname = fin.readline()

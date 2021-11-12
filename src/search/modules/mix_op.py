@@ -5,9 +5,6 @@ import math
 
 import numpy as np
 
-from torch.nn.parameter import Parameter
-import torch.nn.functional as F
-
 from src.search.modules.layers import *
 from src.search.utils.pytorch_utils import detach_variable
 
@@ -22,7 +19,9 @@ def build_candidate_ops(candidate_ops, in_channels, out_channels, stride, ops_or
     }
     # add MBConv layers
     name2ops.update({
-        '3x3_MBConv1': lambda in_C, out_C, S, num_bits: MBInvertedConvLayer(in_C, out_C, 3, S, 1, num_bits=num_bits),
+        '3x3_MBConv1': lambda in_C, out_C, S, num_bits: MBInvertedConvLayer(in_channels=in_C, out_channels=out_C,
+                                                                            kernel_size=3, stride=S,
+                                                                            expand_ratio=1, num_bits=num_bits),
         '3x3_MBConv2': lambda in_C, out_C, S, num_bits: MBInvertedConvLayer(in_C, out_C, 3, S, 2, num_bits=num_bits),
         '3x3_MBConv3': lambda in_C, out_C, S, num_bits: MBInvertedConvLayer(in_C, out_C, 3, S, 3, num_bits=num_bits),
         '3x3_MBConv4': lambda in_C, out_C, S, num_bits: MBInvertedConvLayer(in_C, out_C, 3, S, 4, num_bits=num_bits),
@@ -125,6 +124,7 @@ class MixedEdge(MyModule):
             def run_function(candidate_ops, active_id):
                 def forward(_x):
                     return candidate_ops[active_id](_x)
+
                 return forward
 
             def backward_function(candidate_ops, active_id, binary_gates):
@@ -139,7 +139,9 @@ class MixedEdge(MyModule):
                             grad_k = torch.sum(out_k * grad_output)
                             binary_grads[k] = grad_k
                     return binary_grads
+
                 return backward
+
             output = ArchGradientFunction.apply(
                 x, self.AP_path_wb, run_function(self.candidate_ops, self.active_index[0]),
                 backward_function(self.candidate_ops, self.active_index[0], self.AP_path_wb)
@@ -276,4 +278,3 @@ class ArchGradientFunction(torch.autograd.Function):
         binary_grads = ctx.backward_func(detached_x.data, output.data, grad_output.data)
 
         return grad_x[0], binary_grads, None, None
-

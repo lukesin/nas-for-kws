@@ -135,6 +135,7 @@ def load_bg_data(dir):
 
 class SpeechCommandsFolder(torch.utils.data.Dataset):
     """A generic data loader where the samples are arranged in this way: ::
+        一个以如下方式排列样本的通用数据加载器：
 
         root/class_x/xxx.ext
         root/class_x/xxy.ext
