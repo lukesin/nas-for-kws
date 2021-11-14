@@ -14,6 +14,9 @@ from src.search.data_providers.base_provider import *
 from definitions import DATA_PATH
 
 torchaudio_enabled = True if importlib.util.find_spec('torchaudio') else False
+# torchaudio原生支持wav和mp3格式的声音文件, 且相比于librosa, 还添加了对GPU的支持
+# 有关对比可以参考 https://github.com/KinWaiCheuk/nnAudio
+# nnAudio是一个全新的跨平台GPU音频处理工具: https://kinwaicheuk.github.io/nnAudio/index.html
 if torchaudio_enabled:
     import torchaudio
 else:
@@ -28,7 +31,9 @@ class SpeechCommandsDataProvider(DataProvider):
         self.n_mfcc = n_mfcc
 
         train_dataset = SpeechCommandsFolder(os.path.join(self.save_path, 'training'), augment=True, n_mfcc=self.n_mfcc)
-        validation_dataset = SpeechCommandsFolder(os.path.join(self.save_path, 'validation'), augment=False, n_mfcc=self.n_mfcc)
+        print(train_dataset)
+        validation_dataset = SpeechCommandsFolder(os.path.join(self.save_path, 'validation'), augment=False,
+                                                  n_mfcc=self.n_mfcc)
         test_dataset = SpeechCommandsFolder(os.path.join(self.save_path, 'testing'), augment=False, n_mfcc=self.n_mfcc)
 
         self.train = torch.utils.data.DataLoader(
@@ -83,6 +88,16 @@ def has_file_allowed_extension(filename, extensions):
 
 
 def make_dataset(dir, class_to_idx, extensions):
+    """
+    数据集maker
+    Args:
+        dir:
+        class_to_idx:
+        extensions:
+
+    Returns:
+
+    """
     images = []
     dir = os.path.expanduser(dir)
     for target in sorted(class_to_idx.keys()):
@@ -117,6 +132,14 @@ def make_dataset(dir, class_to_idx, extensions):
 
 
 def load_bg_data(dir):
+    """
+
+    Args:
+        dir:
+
+    Returns:
+
+    """
     background_data = []
     background_folder = os.path.join(dir, '_background_noise_')
     for root, _, fnames in os.walk(background_folder):
@@ -146,31 +169,25 @@ class SpeechCommandsFolder(torch.utils.data.Dataset):
         root/class_y/asd932_.ext
 
     Args:
-        root (string): Root directory path.
-        loader (callable): A function to load a sample given its path.
-        extensions (tuple[string]): A list of allowed extensions.
-            both extensions and is_valid_file should not be passed.
-        transform (callable, optional): A function/transform that takes in
-            a sample and returns a transformed version.
-            E.g, ``transforms.RandomCrop`` for images.
-        target_transform (callable, optional): A function/transform that takes
-            in the target and transforms it.
-        is_valid_file (callable, optional): A function that takes path of a file
-            and check if the file is a valid file (used to check of corrupt files)
-            both extensions and is_valid_file should not be passed.
+        root (string): 根文件夹目录.
+        loader (callable): 用于加载给定路径中的样本的函数.
+        extensions (tuple[string]): 允许的扩展名 (是一个tuple). ；both 扩展名 and is_valid_file 是不被允许的.
+        transform (callable, optional): 转化函数，这里认为是对输入数据做偏移用的(偏移+噪音之类的)；E.g, ``transforms.RandomCrop`` for images.
+        target_transform (callable, optional): 这个函数作者没写，不知道是为啥，猜一波上边的 transform() 已经做完了需求
+        is_valid_file (callable, optional): 这个也没写，看起来是验证文件有效性的函数. 检查文件是否有效(文件是否损坏)的函数，both 扩展名 and is_valid_file 是不被允许的.
 
      Attributes:
-        classes (list): List of the class names.
+        classes (list): 目标分类 (list).
         class_to_idx (dict): Dict with items (class_name, class_index).
         samples (list): List of (sample path, class_index) tuples
-        targets (list): The class_index value for each image in the dataset
+        targets (list): The class_index value for each image in the dataset  #Todo ?
     """
 
     def __init__(self, root, augment=False, n_mfcc=10):
         self.root = root
-        self.augment = augment
-        self.extensions = ('.wav',)
-        self.sample_rate = 16000
+        self.augment = augment  # 扩张
+        self.extensions = ('.wav',)  # 这里是允许的拓展名，torchaudio还支持mp3格式的音频文件
+        self.sample_rate = 16000  # 采样率
         self.n_mfcc = n_mfcc
         self.classes = ['yes', 'no', 'up', 'down', 'left', 'right', 'on', 'off', 'stop', 'go', 'silence', 'unknown']
         self.class_to_idx = {self.classes[i]: i for i in range(len(self.classes))}
@@ -178,12 +195,13 @@ class SpeechCommandsFolder(torch.utils.data.Dataset):
         samples = make_dataset(self.root, self.class_to_idx, self.extensions)
         if len(samples) == 0:
             raise (RuntimeError("Found 0 files in subfolders of: " + self.root + "\n"
-                                "Supported extensions are: " + ",".join(self.extensions)))
+                                                                                 "Supported extensions are: " + ",".join(
+                self.extensions)))
 
         self.samples = samples
         targets = [s[1] for s in samples]
         self.targets = targets
-        self.background_data = load_bg_data(root)
+        self.background_data = load_bg_data(root)  # Todo:
 
         self.unknown_indices = [i for i in range(len(targets)) if self.class_to_idx['unknown'] == targets[i]]
         self.silence_indices = [i for i in range(len(targets)) if self.class_to_idx['silence'] == targets[i]]
@@ -192,20 +210,6 @@ class SpeechCommandsFolder(torch.utils.data.Dataset):
         self.keyword_indices.sort()
 
         self.n_samples = len(all_indices)
-
-    def extract_features(self, sample):
-        if torchaudio_enabled:
-            melkwargs = {
-                'win_length': 640,
-                'hop_length': 320,
-                'n_fft': 640,
-            }
-            mfcc = torchaudio.transforms.MFCC(self.sample_rate, self.n_mfcc, melkwargs=melkwargs)(sample)
-            return mfcc
-        else:
-            mfcc = librosa.feature.mfcc(sample.numpy()[0], sr=self.sample_rate, n_mfcc=self.n_mfcc, hop_length=320, n_fft=640)
-            mfcc = torch.from_numpy(mfcc.astype('float32'))
-            return torch.reshape(mfcc, (1, mfcc.shape[0], mfcc.shape[1]))
 
     def loader(self, path):
         if torchaudio_enabled:
@@ -227,7 +231,38 @@ class SpeechCommandsFolder(torch.utils.data.Dataset):
         elif n_samples > sample_rate:
             raise (RuntimeError("File {} has more than {} samples.".format(path, sample_rate)))
 
+    def extract_features(self, sample):
+        """
+        提取特征?
+        Args:
+            sample:
+
+        Returns:
+
+        """
+        if torchaudio_enabled:
+            melkwargs = {
+                'win_length': 640,
+                'hop_length': 320,
+                'n_fft': 640,
+            }
+            mfcc = torchaudio.transforms.MFCC(self.sample_rate, self.n_mfcc, melkwargs=melkwargs)(sample)
+            return mfcc
+        else:
+            mfcc = librosa.feature.mfcc(sample.numpy()[0], sr=self.sample_rate, n_mfcc=self.n_mfcc, hop_length=320,
+                                        n_fft=640)
+            mfcc = torch.from_numpy(mfcc.astype('float32'))
+            return torch.reshape(mfcc, (1, mfcc.shape[0], mfcc.shape[1]))
+
     def transform(self, sample):
+        """
+        转化?
+        Args:
+            sample:
+
+        Returns:
+
+        """
         time_shift_ms = 100
         background_frequency = 0.8
         background_volume_range = 0.1
@@ -236,10 +271,10 @@ class SpeechCommandsFolder(torch.utils.data.Dataset):
         shifted_sample = torch.zeros_like(sample)
         sample_len = sample.shape[1]
         if time_shift_samples > 0:
-            shifted_sample[:, time_shift_samples:] = sample[:, :sample_len-time_shift_samples]
+            shifted_sample[:, time_shift_samples:] = sample[:, :sample_len - time_shift_samples]
         elif time_shift_samples < 0:
             time_shift_samples = abs(time_shift_samples)
-            shifted_sample[:, :sample_len-time_shift_samples] = sample[:, time_shift_samples:]
+            shifted_sample[:, :sample_len - time_shift_samples] = sample[:, time_shift_samples:]
         else:
             shifted_sample = sample
 
@@ -248,12 +283,12 @@ class SpeechCommandsFolder(torch.utils.data.Dataset):
             bg_sample_len = background_sample.shape[1]
             background_offset = np.random.randint(0, bg_sample_len - sample_len)
             background_clipped = background_sample[:, background_offset:(background_offset + sample_len)]
-            if np.random.uniform(0, 1) < background_frequency:
+            if np.random.uniform(0, 1) < background_frequency:  # Todo:加噪声
                 background_volume = np.random.uniform(0, background_volume_range)
             else:
                 background_volume = 0
 
-            transformed_sample = shifted_sample * (1-background_volume) + background_clipped * background_volume
+            transformed_sample = shifted_sample * (1 - background_volume) + background_clipped * background_volume
         else:
             transformed_sample = shifted_sample
 
@@ -261,19 +296,22 @@ class SpeechCommandsFolder(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         """
-        Args:
-            index (int): Index
+        如果在类中定义了__getitem__()方法，那么他的实例对象(假设为P)就可以这样P[key]取值.
+        当实例对象做P[key]运算时，就会调用类中的 __getitem__() 方法, 会返回 __getitem__ 中定义的返回值.
+        通常是对值进行修饰等.
 
         Returns:
-            tuple: (sample, target) where target is class_index of the target class.
+            P[index] = sample, target
         """
 
         path, target = self.samples[index]
+        # print(f"path, target: {path, target}")
         sample = self.loader(path)
-        if self.augment:
+        # print(f"sample: {sample}")
+        if self.augment:  # 如果有 angment = Ture
             sample = self.transform(sample)
         sample = self.extract_features(sample)
-
+        # print(f"sample, target: {sample, target}")
         return sample, target
 
     def __len__(self):

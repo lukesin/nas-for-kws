@@ -1,0 +1,26 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="arch_search" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true" show_console_on_std_err="true" show_console_on_std_out="true">
+    <output_file path="$PROJECT_DIR$/logs/arch_search.log" is_save="true" />
+    <log_file alias="arch_search" path="$PROJECT_DIR$/logs/arch_search.log" />
+    <module name="nas-for-kws" />
+    <option name="INTERPRETER_OPTIONS" value="" />
+    <option name="PARENT_ENVS" value="true" />
+    <envs>
+      <env name="PYTHONUNBUFFERED" value="1" />
+    </envs>
+    <option name="SDK_HOME" value="" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/search" />
+    <option name="IS_MODULE_SDK" value="true" />
+    <option name="ADD_CONTENT_ROOTS" value="true" />
+    <option name="ADD_SOURCE_ROOTS" value="true" />
+    <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/search/arch_search.py" />
+    <option name="PARAMETERS" value="--path &quot;C:\Users\12994\PycharmProjects\nas-for-kws\src\search\output&quot; --dataset &quot;speech_commands&quot; --init_lr 0.2 --train_batch_size 100 --test_batch_size 100 --target_hardware &quot;flops&quot; --flops_ref_value 20e6 --n_worker 4 --arch_lr 4e-3 --grad_reg_loss_alpha 1 --grad_reg_loss_beta 0.3 --weight_bits 8 --width_mult 1.0 --n_mfcc 10" />
+    <option name="SHOW_COMMAND_LINE" value="false" />
+    <option name="EMULATE_TERMINAL" value="false" />
+    <option name="MODULE_MODE" value="false" />
+    <option name="REDIRECT_INPUT" value="false" />
+    <option name="INPUT_FILE" value="" />
+    <method v="2" />
+  </configuration>
+</component>

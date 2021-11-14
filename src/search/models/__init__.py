@@ -44,6 +44,7 @@ class ImagenetRunConfig(RunConfig):
             'distort_color': self.distort_color,
         }
 
+
 # TODO change defaults
 class SpeechCommandsRunConfig(RunConfig):
 

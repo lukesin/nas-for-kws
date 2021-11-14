@@ -3,6 +3,7 @@
 # International Conference on Learning Representations (ICLR), 2019.
 
 import argparse
+import time
 
 from models import ImagenetRunConfig, SpeechCommandsRunConfig
 from models.super_nets.super_proxyless import SuperProxylessNASNets
@@ -16,7 +17,7 @@ parser.add_argument('--debug', help='freeze the weight parameters', action='stor
 parser.add_argument('--manual_seed', default=0, type=int)
 
 """ run config """
-parser.add_argument('--n_epochs', type=int, default=2)# todo
+parser.add_argument('--n_epochs', type=int, default=2)  # todo
 parser.add_argument('--init_lr', type=float, default=0.2)
 parser.add_argument('--lr_schedule_type', type=str, default='cosine')
 # lr_schedule_param
@@ -57,7 +58,7 @@ parser.add_argument('--weight_bits', type=int, default=None)
 # architecture search config
 """ arch search algo and warmup """
 parser.add_argument('--arch_algo', type=str, default='grad', choices=['grad', 'rl'])
-parser.add_argument('--warmup_epochs', type=int, default=2) # Todo
+parser.add_argument('--warmup_epochs', type=int, default=2)  # Todo
 """ shared hyper-parameters """
 parser.add_argument('--arch_init_type', type=str, default='normal', choices=['normal', 'uniform'])
 parser.add_argument('--arch_init_ratio', type=float, default=1e-3)
@@ -86,8 +87,8 @@ parser.add_argument('--rl_update_steps_per_epoch', type=int, default=300)
 parser.add_argument('--rl_baseline_decay_weight', type=float, default=0.99)
 parser.add_argument('--rl_tradeoff_ratio', type=float, default=0.1)
 
-
 if __name__ == '__main__':
+    print(time.time())
     args = parser.parse_args()
 
     torch.manual_seed(args.manual_seed)
@@ -158,6 +159,7 @@ if __name__ == '__main__':
             raise AttributeError
     if args.arch_algo == 'grad':
         from nas_manager import GradientArchSearchConfig
+
         if args.grad_reg_loss_type == 'add#linear':
             args.grad_reg_loss_params = {'lambda': args.grad_reg_loss_lambda}
         elif args.grad_reg_loss_type == 'mul#log':
@@ -170,6 +172,7 @@ if __name__ == '__main__':
         arch_search_config = GradientArchSearchConfig(**args.__dict__)
     elif args.arch_algo == 'rl':
         from nas_manager import RLArchSearchConfig
+
         arch_search_config = RLArchSearchConfig(**args.__dict__)
     else:
         raise NotImplementedError
@@ -190,6 +193,7 @@ if __name__ == '__main__':
             arch_search_run_manager.load_model()
         except Exception:
             from pathlib import Path
+
             home = str(Path.home())
             warmup_path = os.path.join(
                 home, 'Workspace/Exp/arch_search/%s_ProxylessNAS_%.2f_%s/warmup.pth.tar' %
@@ -201,8 +205,8 @@ if __name__ == '__main__':
             else:
                 print('fail to load models')
 
-    #warmup_path = "/.../warmup.pth.tar"
-    #arch_search_run_manager.load_model(model_fname=warmup_path)
+    # warmup_path = "/.../warmup.pth.tar"
+    # arch_search_run_manager.load_model(model_fname=warmup_path)
     # warmup
     if arch_search_run_manager.warmup:
         arch_search_run_manager.warm_up(warmup_epochs=args.warmup_epochs)

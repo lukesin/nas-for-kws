@@ -12,7 +12,6 @@ import torch
 from models import *
 from run_manager import RunManager
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument('--path', type=str, default=None)
 parser.add_argument('--gpu', help='gpu available', default='0,1,2,3')
@@ -22,7 +21,7 @@ parser.add_argument('--manual_seed', default=0, type=int)
 parser.add_argument('--resume', action='store_true')
 parser.add_argument('--latency', type=str, default=None)
 
-parser.add_argument('--n_epochs', type=int, default=2) # Todo
+parser.add_argument('--n_epochs', type=int, default=2)  # Todo
 parser.add_argument('--init_lr', type=float, default=0.05)
 parser.add_argument('--lr_schedule_type', type=str, default='cosine')
 # lr_schedule_param
@@ -64,7 +63,6 @@ parser.add_argument('--n_bits', default='1,2,3,4,5,6,7,8')
 
 # TODO
 def fold_batch_norm(state_dict):
-
     param_names = ["conv.weight", "bn.weight", "bn.bias", "bn.running_mean", "bn.running_var"]
     layers = {}
     for state_key in state_dict.keys():
@@ -88,10 +86,11 @@ def fold_batch_norm(state_dict):
             for k in range(params["conv.weight"].shape[2]):
                 for j in range(params["conv.weight"].shape[1]):
                     for i in range(params["conv.weight"].shape[0]):
-                            params["conv.weight"][i][j][k][l] *= params["bn.weight"][i] / np.sqrt(params["bn.running_var"])
+                        params["conv.weight"][i][j][k][l] *= params["bn.weight"][i] / np.sqrt(params["bn.running_var"])
 
         for i in range(params["bn.bias"].shape[0]):
-            params["bn.bias"] -= params["bn.weight"][i] * params["bn.running_mean"][i] / np.sqrt(params["bn.running_var"])
+            params["bn.bias"] -= params["bn.weight"][i] * params["bn.running_mean"][i] / np.sqrt(
+                params["bn.running_var"])
 
         # Reset
         for i in range(params["bn.weight"].shape[0]):
@@ -123,7 +122,7 @@ def quantize_state_dict(state_dict, n_bits):
 
 # Taken from https://github.com/ARM-software/ML-KWS-for-MCU
 def quantize_state_dict_qmn(state_dict, n_bits):
-    conv_weights = { k: v for k, v in state_dict.items() if k.endswith("conv.weight")}
+    conv_weights = {k: v for k, v in state_dict.items() if k.endswith("conv.weight")}
     for name, weight in conv_weights.items():
         weight = weight.cpu()
         min_wt = weight.min()
@@ -196,15 +195,18 @@ if __name__ == '__main__':
     if os.path.isfile(net_config_path):
         # load net from file
         from models import get_net_by_name
+
         net_config = json.load(open(net_config_path, 'r'))
         net = get_net_by_name(net_config['name']).build_from_config(net_config)
     else:
         # build net from args
         if 'proxyless' in args.net:
             from models.normal_nets.proxyless_nets import proxyless_base
+
             net_config_url = 'https://hanlab.mit.edu/files/proxylessNAS/%s.config' % args.net
             net = proxyless_base(
                 net_config=net_config_url, n_classes=run_config.data_provider.n_classes,
+                # Todo: n_classes=run_config.data_provider.n_classes, => 12 ?
                 bn_param=(args.bn_momentum, args.bn_eps), dropout_rate=args.dropout,
             )
         else:
@@ -236,6 +238,7 @@ if __name__ == '__main__':
         run_manager.net.module.load_state_dict(checkpoint)
     elif 'proxyless' in args.net and not args.train:
         from utils.latency_estimator import download_url
+
         pretrained_weight_url = 'https://hanlab.mit.edu/files/proxylessNAS/%s.pth' % args.net
         print('Load pretrained weights from %s' % pretrained_weight_url)
         init_path = download_url(pretrained_weight_url)
@@ -291,7 +294,7 @@ if __name__ == '__main__':
                 raise FileNotFoundError
 
             # fold batch norm and quantize model
-            #checkpoint = fold_batch_norm(checkpoint)
+            # checkpoint = fold_batch_norm(checkpoint)
             checkpoint = quantize_state_dict(checkpoint, n_bits)
             run_manager.net.module.load_state_dict(checkpoint)
 
