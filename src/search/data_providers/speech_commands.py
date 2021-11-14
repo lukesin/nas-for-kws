@@ -315,4 +315,9 @@ class SpeechCommandsFolder(torch.utils.data.Dataset):
         return sample, target
 
     def __len__(self):
+        """
+        使一个类表现得像 list
+
+        Returns:self.n_samples, 实际上是 all_indices 的长度.
+        """
         return self.n_samples

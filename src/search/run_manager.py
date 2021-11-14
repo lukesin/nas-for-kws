@@ -385,6 +385,7 @@ class RunManager:
         with open(latest_fname, 'w') as fout:
             fout.write(model_path + '\n')
         torch.save(checkpoint, model_path)
+        # print(f"checkpoint, model_path: {checkpoint, model_path}")
 
         if is_best:
             best_path = os.path.join(self.save_path, 'model_best.pth.tar')

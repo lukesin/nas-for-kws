@@ -5,6 +5,7 @@
 from run_manager import *
 from src.search.utils import *
 
+
 class ArchSearchConfig:
 
     def __init__(self, arch_init_type, arch_init_ratio, arch_opt_type, arch_lr,
@@ -255,7 +256,7 @@ class ArchSearchRunManager:
         self.net.unused_modules_back()
         return valid_res, flops, latency
 
-    def warm_up(self, warmup_epochs=25):
+    def warm_up(self, warmup_epochs=25):  # Todo: warmup
         lr_max = 0.05
         data_loader = self.run_manager.run_config.train_loader
         nBatch = len(data_loader)

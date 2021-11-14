@@ -65,7 +65,7 @@ class SpeechCommandsRunConfig(RunConfig):
         self.distort_color = distort_color
         self.n_mfcc = n_mfcc
 
-        print(kwargs.keys())
+        # print(kwargs.keys()) # Todo: 这里是程序一开始输出参数的列表的, 感觉没必要
 
     @property
     def data_config(self):
