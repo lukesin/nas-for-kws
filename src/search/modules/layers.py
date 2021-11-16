@@ -4,11 +4,12 @@
 
 from src.search.utils import *
 from collections import OrderedDict
-from .quantized_modules import *
+from .quantized_modules import QConv2d, QLinear
 from torch import nn
+import torch
 
-from ..utils.my_modules import MyModule
-from ..utils.pytorch_utils import ShuffleLayer, count_conv_flop, build_activation
+from src.search.utils.my_modules import MyModule
+from src.search.utils.pytorch_utils import ShuffleLayer, count_conv_flop, build_activation
 
 
 def set_layer_from_config(layer_config):
@@ -229,7 +230,8 @@ class DepthConvLayer(My2DLayer):
             dilation=self.dilation, groups=self.in_channels, bias=False, num_bits=self.num_bits
         )
         weight_dict['point_conv'] = QConv2d(
-            self.in_channels, self.out_channels, kernel_size=1, groups=self.groups, bias=self.bias, num_bits=self.num_bits
+            self.in_channels, self.out_channels, kernel_size=1, groups=self.groups, bias=self.bias,
+            num_bits=self.num_bits
         )
         if self.has_shuffle and self.groups > 1:
             weight_dict['shuffle'] = ShuffleLayer(self.groups)
@@ -495,7 +497,8 @@ class MBInvertedConvLayer(MyModule):
 
         pad = get_same_padding(self.kernel_size)
         self.depth_conv = nn.Sequential(OrderedDict([
-            ('conv', QConv2d(feature_dim, feature_dim, kernel_size, stride, pad, groups=feature_dim, bias=False, num_bits=self.num_bits)),
+            ('conv', QConv2d(feature_dim, feature_dim, kernel_size, stride, pad, groups=feature_dim, bias=False,
+                             num_bits=self.num_bits)),
             ('bn', nn.BatchNorm2d(feature_dim)),
             ('act', nn.ReLU6(inplace=True)),
         ]))
@@ -520,12 +523,14 @@ class MBInvertedConvLayer(MyModule):
             stride = self.stride
         if not self.num_bits:
             return '%dx%d_MBConv%d [Ch_in=%d, Ch_out=%d, stride=%s]' % (self.kernel_size, self.kernel_size,
-                                                                         self.expand_ratio, self.in_channels,
-                                                                         self.out_channels, stride)
+                                                                        self.expand_ratio, self.in_channels,
+                                                                        self.out_channels, stride)
         else:
             return '%dx%d_MBConv%d [Ch_in=%d, Ch_out=%d, stride=%s, num_bits=%d]' % (self.kernel_size, self.kernel_size,
-                                                                        self.expand_ratio, self.in_channels,
-                                                                        self.out_channels, stride, self.num_bits)
+                                                                                     self.expand_ratio,
+                                                                                     self.in_channels,
+                                                                                     self.out_channels, stride,
+                                                                                     self.num_bits)
 
     @property
     def config(self):

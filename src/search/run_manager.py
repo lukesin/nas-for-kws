@@ -338,7 +338,8 @@ class RunManager:
     def print_net_info(self, measure_latency=None):
         # network architecture
         if self.out_log:
-            print(self.net)
+            # print(self.net)  # Todo: 输出网络结构
+            pass
 
         # parameters
         if isinstance(self.net, nn.DataParallel):
@@ -413,6 +414,7 @@ class RunManager:
             else:
                 checkpoint = torch.load(model_fname, map_location='cpu')
 
+            print(f"state_dict: {checkpoint['state_dict']}")
             self.net.module.load_state_dict(checkpoint['state_dict'])
             # set new manual seed
             new_manual_seed = int(time.time())

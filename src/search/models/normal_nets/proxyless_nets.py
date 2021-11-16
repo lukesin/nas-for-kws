@@ -4,6 +4,8 @@
 
 from src.search.modules.layers import *
 import json
+from src.search.utils.latency_estimator import download_url
+from src.search.utils.my_modules import MyNetwork
 
 
 def proxyless_base(net_config=None, n_classes=1000, bn_param=(0.1, 1e-3), dropout_rate=0):

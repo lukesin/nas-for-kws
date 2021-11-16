@@ -17,7 +17,7 @@ parser.add_argument('--debug', help='freeze the weight parameters', action='stor
 parser.add_argument('--manual_seed', default=0, type=int)
 
 """ run config """
-parser.add_argument('--n_epochs', type=int, default=4)  # todo
+parser.add_argument('--n_epochs', type=int, default=2)  # todo
 parser.add_argument('--init_lr', type=float, default=0.2)
 parser.add_argument('--lr_schedule_type', type=str, default='cosine')
 # lr_schedule_param
@@ -58,7 +58,7 @@ parser.add_argument('--weight_bits', type=int, default=None)
 # architecture search config
 """ arch search algo and warmup """
 parser.add_argument('--arch_algo', type=str, default='grad', choices=['grad', 'rl'])
-parser.add_argument('--warmup_epochs', type=int, default=6)  # Todo
+parser.add_argument('--warmup_epochs', type=int, default=0)  # Todo
 """ shared hyper-parameters """
 parser.add_argument('--arch_init_type', type=str, default='normal', choices=['normal', 'uniform'])
 parser.add_argument('--arch_init_ratio', type=float, default=1e-3)

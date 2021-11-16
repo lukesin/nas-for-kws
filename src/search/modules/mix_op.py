@@ -1,15 +1,12 @@
 # ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware
 # Han Cai, Ligeng Zhu, Song Han
 # International Conference on Learning Representations (ICLR), 2019.
-import math
-
 import numpy as np
-
+import math
 from torch.nn.parameter import Parameter
 import torch.nn.functional as F
-
-from src.search.modules.layers import *
 from src.search.utils.pytorch_utils import detach_variable
+from src.search.modules.layers import *
 
 
 def build_candidate_ops(candidate_ops, in_channels, out_channels, stride, ops_order, num_bits=None):
@@ -130,6 +127,7 @@ class MixedEdge(MyModule):
             def run_function(candidate_ops, active_id):
                 def forward(_x):
                     return candidate_ops[active_id](_x)
+
                 return forward
 
             def backward_function(candidate_ops, active_id, binary_gates):
@@ -144,7 +142,9 @@ class MixedEdge(MyModule):
                             grad_k = torch.sum(out_k * grad_output)
                             binary_grads[k] = grad_k
                     return binary_grads
+
                 return backward
+
             output = ArchGradientFunction.apply(
                 x, self.AP_path_wb, run_function(self.candidate_ops, self.active_index[0]),
                 backward_function(self.candidate_ops, self.active_index[0], self.AP_path_wb)
@@ -216,11 +216,15 @@ class MixedEdge(MyModule):
 
     def set_arch_param_grad(self):
         binary_grads = self.AP_path_wb.grad.data
+        # print(f"binary_grads is : {binary_grads}")
+
         if self.active_op.is_zero_layer():
             self.AP_path_alpha.grad = None
             return
+
         if self.AP_path_alpha.grad is None:
             self.AP_path_alpha.grad = torch.zeros_like(self.AP_path_alpha.data)
+
         if MixedEdge.MODE == 'two':
             involved_idx = self.active_index + self.inactive_index
             probs_slice = F.softmax(torch.stack([

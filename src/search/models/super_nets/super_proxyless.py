@@ -6,9 +6,9 @@ from queue import Queue
 import copy
 
 from src.search.modules.mix_op import *
-from src.search.models.normal_nets.proxyless_nets import *
+from src.search.models.normal_nets.proxyless_nets import ProxylessNASNets, MobileInvertedResidualBlock
 from src.search.utils.latency_estimator import LatencyEstimator
-
+from src.search.run_manager import MixedEdge
 
 class SuperProxylessNASNets(ProxylessNASNets):
 
@@ -23,7 +23,8 @@ class SuperProxylessNASNets(ProxylessNASNets):
 
         # first conv layer
         first_conv = ConvLayer(
-            1, input_channel, kernel_size=(5, 11), stride=(1, 2), use_bn=True, act_func='relu6', ops_order='weight_bn_act', num_bits=num_bits
+            1, input_channel, kernel_size=(5, 11), stride=(1, 2), use_bn=True, act_func='relu6',
+            ops_order='weight_bn_act', num_bits=num_bits
         )
 
         # blocks
@@ -54,7 +55,8 @@ class SuperProxylessNASNets(ProxylessNASNets):
         # feature mix layer
         last_channel = make_divisible(144 * width_mult, 8)
         feature_mix_layer = ConvLayer(
-            input_channel, last_channel, kernel_size=1, use_bn=True, act_func='relu6', ops_order='weight_bn_act', num_bits=num_bits
+            input_channel, last_channel, kernel_size=1, use_bn=True, act_func='relu6', ops_order='weight_bn_act',
+            num_bits=num_bits
         )
 
         # classifier
@@ -125,12 +127,16 @@ class SuperProxylessNASNets(ProxylessNASNets):
             except AttributeError:
                 print(type(m), ' do not support binarize')
 
-    def set_arch_param_grad(self):
+    def set_arch_param_grad_new(self):
         for m in self.redundant_modules:
             try:
-                m.set_arch_param_grad()
+                MixedEdge.set_arch_param_grad(m)
+                #m.set_arch_param_grad()
             except AttributeError:
                 print(type(m), ' do not support `set_arch_param_grad()`')
+                # Todo: 2021年11月16日10:55:06
+                #  报 <class 'src.search.modules.mix_op.MixedEdge'>  do not support `set_arch_param_grad()`
+                #  解决了
 
     def rescale_updated_arch_param(self):
         for m in self.redundant_modules:

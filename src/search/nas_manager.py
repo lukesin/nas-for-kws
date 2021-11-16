@@ -591,7 +591,8 @@ class ArchSearchRunManager:
         self.run_manager.net.zero_grad()  # zero grads of weight_param, arch_param & binary_param
         loss.backward()
         # set architecture parameter gradients
-        self.net.set_arch_param_grad()
+        self.net.set_arch_param_grad_new()
+        # self.net.set_arch_param_grad_new()
         self.arch_optimizer.step()
         if MixedEdge.MODE == 'two':
             self.net.rescale_updated_arch_param()
