@@ -183,20 +183,21 @@ class SpeechCommandsFolder(torch.utils.data.Dataset):
         targets (list): The class_index value for each image in the dataset  #Todo ?
     """
 
-    def __init__(self, root, augment=False, n_mfcc=10):
+    def __init__(self, root, augment=False, n_mfcc=10) -> object:
         self.root = root
         self.augment = augment  # 扩张
         self.extensions = ('.wav',)  # 这里是允许的拓展名，torchaudio还支持mp3格式的音频文件
         self.sample_rate = 16000  # 采样率
         self.n_mfcc = n_mfcc
-        self.classes = ['yes', 'no', 'up', 'down', 'left', 'right', 'on', 'off', 'stop', 'go', 'silence', 'unknown']
+        # self.classes = ['yes', 'no', 'up', 'down', 'left', 'right', 'on', 'off', 'stop', 'go', 'silence', 'unknown']
+        self.classes = ['hello', 'no', 'up', 'down', 'left', 'right', 'on', 'off', 'stop', 'go', 'silence', 'unknown']
         self.class_to_idx = {self.classes[i]: i for i in range(len(self.classes))}
 
         samples = make_dataset(self.root, self.class_to_idx, self.extensions)
         if len(samples) == 0:
-            raise (RuntimeError("Found 0 files in subfolders of: " + self.root + "\n"
-                                                                                 "Supported extensions are: " + ",".join(
-                self.extensions)))
+            raise (RuntimeError(
+                "Found 0 files in subfolders of: " + self.root + "\nSupported extensions are: " + ",".join(
+                    self.extensions)))
 
         self.samples = samples
         targets = [s[1] for s in samples]

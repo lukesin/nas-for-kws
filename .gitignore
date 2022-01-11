@@ -1,13 +1,3 @@
 **/.idea
 **/*__pycache__*
 /data/
-/src/search/output/checkpoint/checkpoint.pth.tar
-/src/search/output/learned_net/init
-/src/search/output/checkpoint/latest.txt
-/loadpkl.py
-/src/search/output/learned_net/net.config
-/src/search/output/logs/net_info.txt
-/src/search/output/learned_net/run.config
-/src/search/output/logs/train_console.txt
-/src/search/output/logs/valid_console.txt
-/src/search/output/checkpoint/warmup.pth.tar

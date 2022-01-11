@@ -57,8 +57,8 @@ parser.add_argument(
 parser.add_argument('--dropout', type=float, default=0)
 
 """ quantization config """
-parser.add_argument('--quantize', action='store_true')
-parser.add_argument('--n_bits', default='1,2,3,4,5,6,7,8')
+parser.add_argument('--quantize', action='store_true')  # 量化=>Bool
+parser.add_argument('--n_bits', default='1,2,3,4,5,6,7,8')  # 量化参数
 
 
 # TODO
@@ -96,6 +96,8 @@ def fold_batch_norm(state_dict):
         for i in range(params["bn.weight"].shape[0]):
             params["bn.weight"][i] = 1
         params["bn.running_var"] = 1
+        print(params["bn.weight"])
+        print(params["bn.running_var"])
         for i in range(params["bn.running_mean"].shape[0]):
             params["bn.running_mean"][i] = 0
 
@@ -145,6 +147,8 @@ def quantize_state_dict_qmn(state_dict, n_bits):
 
 if __name__ == '__main__':
     args = parser.parse_args()
+
+    print(args.n_epochs)
 
     torch.manual_seed(args.manual_seed)
     torch.cuda.manual_seed_all(args.manual_seed)
@@ -277,7 +281,7 @@ if __name__ == '__main__':
     }
     json.dump(output_dict, open('%s/output' % args.path, 'w'), indent=4)
 
-    # load best model, quantize, validate and test
+    # Todo: # load best model, quantize, validate and test, 这里*.pth.tar视为一整个模型，下面看一下构造时的结构
     if args.quantize:
         bits_per_run = [int(i) for i in args.n_bits.split(",")]
         for n_bits in bits_per_run:

@@ -523,7 +523,7 @@ class RunManager:
                     print(test_log)
         print("Confusion matrix:")
         print(confusion_matrix.numpy())
-        classes = ['yes', 'no', 'up', 'down', 'left', 'right', 'on', 'off', 'stop', 'go', 'silence',
+        classes = ['hello', 'no', 'up', 'down', 'left', 'right', 'on', 'off', 'stop', 'go', 'silence',
                    'unknown']  # See SpeechCommandsFolder class
         class_acc = ""
         for c, a in zip(classes, class_accuracy.tolist()):

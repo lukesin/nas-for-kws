@@ -195,6 +195,7 @@ class ArchSearchRunManager:
                 if model_fname[-1] == '\n':
                     model_fname = model_fname[:-1]
 
+        # Todo: 如果checkpoint不存在，则以 model_fname 建立一个
         if model_fname is None or not os.path.exists(model_fname):
             model_fname = '%s/checkpoint.pth.tar' % self.run_manager.save_path
             with open(latest_fname, 'w') as fout:

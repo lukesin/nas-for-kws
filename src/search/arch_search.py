@@ -17,7 +17,7 @@ parser.add_argument('--debug', help='freeze the weight parameters', action='stor
 parser.add_argument('--manual_seed', default=0, type=int)
 
 """ run config """
-parser.add_argument('--n_epochs', type=int, default=2)  # todo
+parser.add_argument('--n_epochs', type=int, default=4)  # todo
 parser.add_argument('--init_lr', type=float, default=0.2)
 parser.add_argument('--lr_schedule_type', type=str, default='cosine')
 # lr_schedule_param
